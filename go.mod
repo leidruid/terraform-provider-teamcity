@@ -13,4 +13,4 @@ require (
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 )
 
-replace github.com/cvbarros/go-teamcity => github.com/tombuildsstuff/go-teamcity v0.5.2-0.20200423112809-b6b246fa56fb
+replace github.com/cvbarros/go-teamcity => ../go-teamcity
