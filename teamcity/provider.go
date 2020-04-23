@@ -23,7 +23,8 @@ func Provider() terraform.ResourceProvider {
 			"teamcity_project_feature_versioned_settings": resourceProjectFeatureVersionedSettings(),
 			"teamcity_snapshot_dependency":                resourceSnapshotDependency(),
 			"teamcity_vcs_root_git":                       resourceVcsRootGit(),
-			"teamcity_agent_pool":                      resourceAgentPool(),
+			"teamcity_agent_pool":                         resourceAgentPool(),
+			"teamcity_agent_pool_project_assignment":      resourceAgentPoolProjectAssignment(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"teamcity_agent_pool": dataSourceAgentPool(),
