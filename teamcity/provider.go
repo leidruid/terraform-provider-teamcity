@@ -25,6 +25,7 @@ func Provider() terraform.ResourceProvider {
 			"teamcity_vcs_root_git":                       resourceVcsRootGit(),
 			"teamcity_agent_pool":                         resourceAgentPool(),
 			"teamcity_agent_pool_project_assignment":      resourceAgentPoolProjectAssignment(),
+			"teamcity_feature_golang":                     resourceFeatureGolang(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"teamcity_agent_pool": dataSourceAgentPool(),
