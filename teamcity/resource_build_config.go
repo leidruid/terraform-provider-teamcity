@@ -282,7 +282,7 @@ func resourceBuildConfigCreate(d *schema.ResourceData, meta interface{}) error {
 		bt.Options = opt
 	}
 
-	created, err := client.BuildTypes.Create(projectID, bt)
+	created, err := client.BuildTypes.Create(bt)
 	if err != nil {
 		return err
 	}
