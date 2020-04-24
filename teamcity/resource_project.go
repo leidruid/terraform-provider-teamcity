@@ -22,7 +22,6 @@ func resourceProject() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -75,6 +74,10 @@ func resourceProjectUpdate(d *schema.ResourceData, meta interface{}) error {
 	dt, err := client.Projects.GetByID(d.Id())
 	if err != nil {
 		return err
+	}
+
+	if d.HasChange("name") {
+		dt.Name = d.Get("name").(string)
 	}
 
 	if v, ok := d.GetOk("description"); ok {
