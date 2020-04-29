@@ -30,7 +30,6 @@ func resourceProject() *schema.Resource {
 			"parent_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"env_params": {
 				Type:     schema.TypeMap,
@@ -119,7 +118,11 @@ func resourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", dt.Name)
 	d.Set("description", dt.Description)
-	d.Set("parent_id", dt.ParentProjectID)
+	parentProjectId := dt.ParentProjectID
+	if parentProjectId == "_Root" {
+		parentProjectId = ""
+	}
+	d.Set("parent_id", parentProjectId)
 
 	return flattenParameterCollection(d, dt.Parameters)
 }
