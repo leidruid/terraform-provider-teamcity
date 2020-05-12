@@ -47,7 +47,13 @@ func resourceProjectFeatureOauthProviderSettings() *schema.Resource {
 				Default:  true,
 			},
 
-			"namespace": {
+			"parameter_namespace": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
+			"vault_namespace": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
@@ -84,14 +90,15 @@ func resourceProjectFeatureOauthProviderSettingsCreate(d *schema.ResourceData, m
 	service := client.ProjectFeatureService(projectId)
 
 	feature := api.NewProjectFeatureOauthProviderSettings(projectId, api.ProjectFeatureOauthProviderSettingsOptions{
-		DisplayName:  d.Get("display_name").(string),
-		Endpoint:     d.Get("endpoint").(string),
-		FailOnError:  d.Get("fail_on_error").(bool),
-		Namespace:    d.Get("namespace").(string),
-		ProviderType: d.Get("provider_type").(string),
-		RoleId:       d.Get("role_id").(string),
-		SecretId:     d.Get("secret_id").(string),
-		Url:          d.Get("url").(string),
+		DisplayName:        d.Get("display_name").(string),
+		Endpoint:           d.Get("endpoint").(string),
+		FailOnError:        d.Get("fail_on_error").(bool),
+		ParameterNamespace: d.Get("parameter_namespace").(string),
+		VaultNamespace:     d.Get("vault_namespace").(string),
+		ProviderType:       d.Get("provider_type").(string),
+		RoleId:             d.Get("role_id").(string),
+		SecretId:           d.Get("secret_id").(string),
+		Url:                d.Get("url").(string),
 	})
 
 	if createdProjectFeature, err := service.Create(feature); err != nil {
@@ -127,8 +134,11 @@ func resourceProjectFeatureOauthProviderSettingsUpdate(d *schema.ResourceData, m
 	if d.HasChange("fail_on_error") {
 		oauthProviderFeature.Options.FailOnError = d.Get("fail_on_error").(bool)
 	}
-	if d.HasChange("namespace") {
-		oauthProviderFeature.Options.Namespace = d.Get("namespace").(string)
+	if d.HasChange("parameter_namespace") {
+		oauthProviderFeature.Options.ParameterNamespace = d.Get("parameter_namespace").(string)
+	}
+	if d.HasChange("vault_namespace") {
+		oauthProviderFeature.Options.VaultNamespace = d.Get("vault_namespace").(string)
 	}
 	if d.HasChange("provider_type") {
 		oauthProviderFeature.Options.ProviderType = d.Get("provider_type").(string)
@@ -172,7 +182,8 @@ func resourceProjectFeatureOauthProviderSettingsRead(d *schema.ResourceData, met
 	d.Set("display_name", string(oauthProviderFeature.Options.DisplayName))
 	d.Set("endpoint", oauthProviderFeature.Options.Endpoint)
 	d.Set("fail_on_error", bool(oauthProviderFeature.Options.FailOnError))
-	d.Set("namespace", oauthProviderFeature.Options.Namespace)
+	d.Set("parameter_namespace", oauthProviderFeature.Options.ParameterNamespace)
+	d.Set("vault_namespace", oauthProviderFeature.Options.VaultNamespace)
 	d.Set("provider_type", oauthProviderFeature.Options.ProviderType)
 	d.Set("role_id", oauthProviderFeature.Options.RoleId)
 	d.Set("url", oauthProviderFeature.Options.Url)
