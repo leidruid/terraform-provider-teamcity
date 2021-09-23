@@ -112,7 +112,7 @@ func resourceBuildConfig() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle"}, false),
 						},
 						"name": {
 							Type:     schema.TypeString,
@@ -521,6 +521,7 @@ func getBuildConfiguration(c *api.Client, id string) (*api.BuildType, error) {
 var stepTypeMap = map[string]string{
 	api.StepTypePowershell:  "powershell",
 	api.StepTypeCommandLine: "cmd_line",
+	api.StepTypeGradle:      "gradle",
 }
 
 func flattenTemplates(d *schema.ResourceData, templates *api.Templates) error {
@@ -696,6 +697,8 @@ func flattenBuildStep(s api.Step) (map[string]interface{}, error) {
 		out, err = flattenBuildStepPowershell(s.(*api.StepPowershell)), nil
 	case "cmd_line":
 		out, err = flattenBuildStepCmdLine(s.(*api.StepCommandLine)), nil
+	case "gradle":
+		out, err = flattenBuildStepGradle(s.(*api.StepGradle)), nil
 	default:
 		return nil, fmt.Errorf("build step type '%s' not supported", s.Type())
 	}
@@ -741,6 +744,24 @@ func flattenBuildStepCmdLine(s *api.StepCommandLine) map[string]interface{} {
 	return m
 }
 
+func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
+	m := make(map[string]interface{})
+	if s.GradleTasksNames != "" {
+		m["tasks"] = s.GradleTasksNames
+	}
+	if s.GradleBuildFile != "" {
+		m["gradleBuildFile"] = s.GradleBuildFile
+	}
+	if s.GradleCmdParams != "" {
+		m["gradleParams"] = s.GradleCmdParams
+	}
+	if s.Name != "" {
+		m["name"] = s.Name
+	}
+	m["type"] = "gradle"
+	return m
+}
+
 func expandBuildSteps(list interface{}) ([]api.Step, error) {
 	out := make([]api.Step, 0)
 	in := list.([]interface{})
@@ -763,9 +784,40 @@ func expandBuildStep(raw interface{}) (api.Step, error) {
 		return expandStepPowershell(localStep)
 	case "cmd_line":
 		return expandStepCmdLine(localStep)
+	case "gradle":
+		return expandStepGradle(localStep)
 	default:
 		return nil, fmt.Errorf("unsupported step type '%s'", t)
 	}
+}
+
+func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
+	var name, tasks, gradleParams, gradleBuildFile string
+	if v, ok := dt["name"]; ok {
+		name = v.(string)
+	}
+	if v, ok := dt["tasks"]; ok {
+		tasks = v.(string)
+	}
+	if v, ok := dt["file"]; ok {
+		gradleBuildFile = v.(string)
+	}
+	if v, ok := dt["params"]; ok {
+		gradleParams = v.(string)
+	}
+
+	var s *api.StepGradle
+	var err error
+
+	s, err = api.NewStepGradle(name, tasks, gradleParams, gradleBuildFile)
+	if err != nil {
+		return nil, err
+	}
+	if v, ok := dt["step_id"]; ok {
+		s.ID = v.(string)
+	}
+	return s, nil
+
 }
 
 func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) {
