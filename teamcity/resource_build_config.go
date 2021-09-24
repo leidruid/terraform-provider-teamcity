@@ -758,10 +758,10 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 		m["tasks"] = s.GradleTasksNames
 	}
 	if s.GradleBuildFile != "" {
-		m["gradleBuildFile"] = s.GradleBuildFile
+		m["file"] = s.GradleBuildFile
 	}
 	if s.GradleCmdParams != "" {
-		m["gradleParams"] = s.GradleCmdParams
+		m["params"] = s.GradleCmdParams
 	}
 	if s.Name != "" {
 		m["name"] = s.Name
