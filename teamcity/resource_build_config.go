@@ -758,10 +758,10 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 		m["tasks"] = s.GradleTasksNames
 	}
 	if s.GradleBuildFile != "" {
-		m["gradleBuildFile"] = s.GradleBuildFile
+		m["file"] = s.GradleBuildFile
 	}
 	if s.GradleCmdParams != "" {
-		m["gradleParams"] = s.GradleCmdParams
+		m["params"] = s.GradleCmdParams
 	}
 	if s.Name != "" {
 		m["name"] = s.Name
@@ -989,7 +989,7 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle"}, true),
 						},
 						"name": {
 							Type:     schema.TypeString,
@@ -1005,6 +1005,10 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 							Optional: true,
 						},
 						"code": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"tasks": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
