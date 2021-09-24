@@ -135,6 +135,10 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"params": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
