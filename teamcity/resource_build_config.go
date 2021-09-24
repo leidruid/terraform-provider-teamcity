@@ -131,6 +131,10 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"tasks": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
