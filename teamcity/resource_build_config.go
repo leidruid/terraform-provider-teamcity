@@ -135,6 +135,10 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"params": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -985,7 +989,7 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle"}, true),
 						},
 						"name": {
 							Type:     schema.TypeString,
@@ -1001,6 +1005,10 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 							Optional: true,
 						},
 						"code": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"tasks": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
