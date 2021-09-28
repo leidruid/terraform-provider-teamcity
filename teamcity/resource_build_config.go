@@ -112,7 +112,7 @@ func resourceBuildConfig() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle", "docker"}, false),
 						},
 						"name": {
 							Type:     schema.TypeString,
@@ -530,6 +530,7 @@ var stepTypeMap = map[string]string{
 	api.StepTypePowershell:  "powershell",
 	api.StepTypeCommandLine: "cmd_line",
 	api.StepTypeGradle:      "gradle",
+	api.StepTypeDocker:      "docker",
 }
 
 func flattenTemplates(d *schema.ResourceData, templates *api.Templates) error {
@@ -707,6 +708,8 @@ func flattenBuildStep(s api.Step) (map[string]interface{}, error) {
 		out, err = flattenBuildStepCmdLine(s.(*api.StepCommandLine)), nil
 	case "gradle":
 		out, err = flattenBuildStepGradle(s.(*api.StepGradle)), nil
+	case "docker":
+		out, err = flattenBuildStepDocker(s.(*api.StepDocker)), nil
 	default:
 		return nil, fmt.Errorf("build step type '%s' not supported", s.Type())
 	}
@@ -770,6 +773,29 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 	return m
 }
 
+func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
+	m := make(map[string]interface{})
+	if s.GetContentIsFromSource() == "false" {
+		m["source"] = false
+	} else {
+		m["source"] = true
+	}
+	if s.CommandType != "" {
+		m["command_type"] = s.CommandType
+	}
+	if s.Args != "" {
+		m["args"] = s.Args
+	}
+	if s.Content != "" {
+		m["content"] = s.Content
+	}
+	if s.Tag != "" {
+		m["tag"] = s.Tag
+	}
+	m["type"] = "docker"
+	return m
+}
+
 func expandBuildSteps(list interface{}) ([]api.Step, error) {
 	out := make([]api.Step, 0)
 	in := list.([]interface{})
@@ -794,6 +820,8 @@ func expandBuildStep(raw interface{}) (api.Step, error) {
 		return expandStepCmdLine(localStep)
 	case "gradle":
 		return expandStepGradle(localStep)
+	case "docker":
+		return expandStepDocker(localStep)
 	default:
 		return nil, fmt.Errorf("unsupported step type '%s'", t)
 	}
@@ -818,6 +846,41 @@ func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
 	var err error
 
 	s, err = api.NewStepGradle(name, tasks, gradleParams, gradleBuildFile)
+	if err != nil {
+		return nil, err
+	}
+	if v, ok := dt["step_id"]; ok {
+		s.ID = v.(string)
+	}
+	return s, nil
+
+}
+
+func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
+	var name, dockerCommandType, dockerContent, dockerArgs, dockerTag string
+	var fromSource bool
+	if v, ok := dt["name"]; ok {
+		name = v.(string)
+	}
+	if v, ok := dt["source"]; ok {
+		fromSource = v.(bool)
+	}
+	if v, ok := dt["command_type"]; ok {
+		dockerCommandType = v.(string)
+	}
+	if v, ok := dt["args"]; ok {
+		dockerArgs = v.(string)
+	}
+	if v, ok := dt["content"]; ok {
+		dockerContent = v.(string)
+	}
+	if v, ok := dt["tag"]; ok {
+		dockerTag = v.(string)
+	}
+
+	var s *api.StepDocker
+	var err error
+	s, err = api.NewStepDocker(name, fromSource, dockerCommandType, dockerContent, dockerArgs, dockerTag)
 	if err != nil {
 		return nil, err
 	}
@@ -989,7 +1052,7 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle"}, true),
+							ValidateFunc: validation.StringInSlice([]string{"powershell", "cmd_line", "gradle", "docker"}, true),
 						},
 						"name": {
 							Type:     schema.TypeString,
@@ -1009,6 +1072,22 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 							Optional: true,
 						},
 						"tasks": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"source": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"command_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"tag": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
