@@ -139,6 +139,22 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"source": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"command_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"tag": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
