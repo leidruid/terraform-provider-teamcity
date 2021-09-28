@@ -140,7 +140,7 @@ func resourceBuildConfig() *schema.Resource {
 							Optional: true,
 						},
 						"source": {
-							Type:     schema.TypeBool,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"command_type": {
@@ -791,10 +791,8 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 
 func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
 	m := make(map[string]interface{})
-	if s.GetContentIsFromSource() == "false" {
-		m["source"] = false
-	} else {
-		m["source"] = true
+	if s.CommandSource != "" {
+		m["source"] = s.CommandSource
 	}
 	if s.CommandType != "" {
 		m["command_type"] = s.CommandType
@@ -873,13 +871,12 @@ func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
 }
 
 func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
-	var name, dockerCommandType, dockerContent, dockerArgs, dockerTag string
-	var fromSource bool
+	var name, fromSource, dockerCommandType, dockerContent, dockerArgs, dockerTag string
 	if v, ok := dt["name"]; ok {
 		name = v.(string)
 	}
 	if v, ok := dt["source"]; ok {
-		fromSource = v.(bool)
+		fromSource = v.(string)
 	}
 	if v, ok := dt["command_type"]; ok {
 		dockerCommandType = v.(string)
@@ -1092,7 +1089,7 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 							Optional: true,
 						},
 						"source": {
-							Type:     schema.TypeBool,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"command_type": {
