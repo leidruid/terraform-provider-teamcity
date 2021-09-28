@@ -155,6 +155,10 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"push_image_remove": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -806,6 +810,7 @@ func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
 	if s.Tag != "" {
 		m["tag"] = s.Tag
 	}
+	m["push_image_remove"] = s.PushRemoveImage
 	m["type"] = "docker"
 	return m
 }
@@ -899,6 +904,9 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 	}
 	if v, ok := dt["step_id"]; ok {
 		s.ID = v.(string)
+	}
+	if v, ok := dt["push_image_remove"]; ok {
+		s.PushRemoveImage = v.(bool)
 	}
 	return s, nil
 
@@ -1102,6 +1110,10 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 						},
 						"tag": {
 							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"push_image_remove": {
+							Type:     schema.TypeBool,
 							Optional: true,
 						},
 					},
