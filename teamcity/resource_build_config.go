@@ -159,6 +159,10 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
+						"work_dir": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -795,21 +799,12 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 
 func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
 	m := make(map[string]interface{})
-	if s.CommandSource != "" {
-		m["source"] = s.CommandSource
-	}
-	if s.CommandType != "" {
-		m["command_type"] = s.CommandType
-	}
-	if s.Args != "" {
-		m["args"] = s.Args
-	}
-	if s.Content != "" {
-		m["content"] = s.Content
-	}
-	if s.Tag != "" {
-		m["tag"] = s.Tag
-	}
+	m["command_type"] = s.CommandType
+	m["source"] = s.CommandSource
+	m["args"] = s.Args
+	m["content"] = s.Content
+	m["tag"] = s.Tag
+	m["work_dir"] = s.WorkingDir
 	m["push_image_remove"] = s.PushRemoveImage
 	m["type"] = "docker"
 	return m
@@ -876,29 +871,16 @@ func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
 }
 
 func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
-	var name, fromSource, dockerCommandType, dockerContent, dockerArgs, dockerTag string
+	var name, commandType string
 	if v, ok := dt["name"]; ok {
 		name = v.(string)
 	}
-	if v, ok := dt["source"]; ok {
-		fromSource = v.(string)
-	}
 	if v, ok := dt["command_type"]; ok {
-		dockerCommandType = v.(string)
+		commandType = v.(string)
 	}
-	if v, ok := dt["args"]; ok {
-		dockerArgs = v.(string)
-	}
-	if v, ok := dt["content"]; ok {
-		dockerContent = v.(string)
-	}
-	if v, ok := dt["tag"]; ok {
-		dockerTag = v.(string)
-	}
-
 	var s *api.StepDocker
 	var err error
-	s, err = api.NewStepDocker(name, fromSource, dockerCommandType, dockerContent, dockerArgs, dockerTag)
+	s, err = api.NewStepDocker(name, commandType)
 	if err != nil {
 		return nil, err
 	}
@@ -907,6 +889,21 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 	}
 	if v, ok := dt["push_image_remove"]; ok {
 		s.PushRemoveImage = v.(bool)
+	}
+	if v, ok := dt["work_dir"]; ok {
+		s.WorkingDir = v.(string)
+	}
+	if v, ok := dt["source"]; ok {
+		s.CommandSource = v.(string)
+	}
+	if v, ok := dt["args"]; ok {
+		s.Args = v.(string)
+	}
+	if v, ok := dt["content"]; ok {
+		s.Content = v.(string)
+	}
+	if v, ok := dt["tag"]; ok {
+		s.Tag = v.(string)
 	}
 	return s, nil
 
@@ -1114,6 +1111,10 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 						},
 						"push_image_remove": {
 							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"work_dir": {
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 					},
