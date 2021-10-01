@@ -263,7 +263,7 @@ func expandTriggerScheduleOptions(d *schema.ResourceData) (*api.TriggerScheduleO
 		opt.RevisionRuleBuildBranch = v.(string)
 	}
 	if v, ok := d.GetOkExists("branch_filter"); ok {
-		opt.RevisionRuleBuildBranch = v.(string)
+		opt.BranchFilter = v.(string)
 	}
 
 	return opt, nil
