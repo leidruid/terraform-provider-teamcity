@@ -126,6 +126,10 @@ func resourceBuildTriggerSchedule() *schema.Resource {
 				Optional: true,
 				Default:  "<default>",
 			},
+			"branch_filter": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -257,6 +261,9 @@ func expandTriggerScheduleOptions(d *schema.ResourceData) (*api.TriggerScheduleO
 	if v, ok := d.GetOkExists("watched_branch"); ok {
 		opt.RevisionRuleBuildBranch = v.(string)
 	}
+	if v, ok := d.GetOkExists("branch_filter"); ok {
+		opt.RevisionRuleBuildBranch = v.(string)
+	}
 
 	return opt, nil
 }
@@ -283,6 +290,9 @@ func flattenTriggerScheduleOptions(dt *api.TriggerScheduleOptions) map[string]in
 	}
 	if dt.RevisionRuleSourceBuildID != "" {
 		out["watched_build_config_id"] = dt.RevisionRuleSourceBuildID
+	}
+	if dt.BranchFilter != "" {
+		out["branch_filter"] = dt.BranchFilter
 	}
 
 	return out
