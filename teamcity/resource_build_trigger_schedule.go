@@ -128,6 +128,7 @@ func resourceBuildTriggerSchedule() *schema.Resource {
 			},
 			"branch_filter": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Optional: true,
 			},
 		},
