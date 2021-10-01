@@ -35,10 +35,11 @@ func resourceBuildTriggerSchedule() *schema.Resource {
 				Required: true,
 			},
 			"minute": {
-				Type:     schema.TypeInt,
-				ForceNew: true,
-				Optional: true,
-				Default:  0,
+				Type:         schema.TypeInt,
+				ForceNew:     true,
+				Optional:     true,
+				Default:      0,
+				ValidateFunc: validation.IntInSlice([]int{0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55}),
 			},
 			"timezone": {
 				Type:     schema.TypeString,
