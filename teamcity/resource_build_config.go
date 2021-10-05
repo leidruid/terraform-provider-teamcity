@@ -799,13 +799,20 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 
 func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
 	m := make(map[string]interface{})
+	if s.Name != "" {
+		m["name"] = s.Name
+	}
 	m["command_type"] = s.CommandType
-	m["source"] = s.CommandSource
+	if s.CommandType == "build" {
+		m["source"] = s.CommandSource
+	}
 	m["args"] = s.Args
 	m["content"] = s.Content
 	m["tag"] = s.Tag
 	m["work_dir"] = s.WorkingDir
-	m["push_image_remove"] = s.PushRemoveImage
+	if s.PushRemoveImage != nil {
+		m["push_image_remove"] = *s.PushRemoveImage
+	}
 	m["type"] = "docker"
 	return m
 }
@@ -888,13 +895,15 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 		s.ID = v.(string)
 	}
 	if v, ok := dt["push_image_remove"]; ok {
-		s.PushRemoveImage = v.(bool)
+		s.PushRemoveImage = api.NewBool(v.(bool))
 	}
 	if v, ok := dt["work_dir"]; ok {
 		s.WorkingDir = v.(string)
 	}
 	if v, ok := dt["source"]; ok {
-		s.CommandSource = v.(string)
+		if commandType == "build" {
+			s.CommandSource = v.(string)
+		}
 	}
 	if v, ok := dt["args"]; ok {
 		s.Args = v.(string)
