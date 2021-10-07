@@ -477,16 +477,13 @@ func resourceBuildConfigRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("project_id", dt.ProjectID); err != nil {
 		return err
 	}
-	err = flattenParameterCollection(d, dt.Parameters)
-	if err != nil {
+	if err := flattenParameterCollection(d, dt.Parameters); err != nil {
 		return err
 	}
-	err = flattenBuildConfigOptions(d, dt.Options)
-	if err != nil {
+	if err := flattenBuildConfigOptions(d, dt.Options); err != nil {
 		return err
 	}
-	err = flattenTemplates(d, dt.Templates)
-	if err != nil {
+	if err := flattenTemplates(d, dt.Templates); err != nil {
 		return err
 	}
 

@@ -30,7 +30,7 @@ func resourceFeatureCommitStatusPublisher() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"github"}, true),
+				ValidateFunc: validation.StringInSlice([]string{"github", "bitbucket_server"}, true),
 			},
 			"github": {
 				Type:     schema.TypeSet,
@@ -74,6 +74,34 @@ func resourceFeatureCommitStatusPublisher() *schema.Resource {
 				},
 				Set: githubPublisherOptionsHash,
 			},
+			"bitbucket_server": {
+				Type:     schema.TypeSet,
+				ForceNew: true,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"host": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"username": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"password": {
+							Type:      schema.TypeString,
+							Optional:  true,
+							Sensitive: true,
+							Computed:  true,
+							ForceNew:  true,
+						},
+					},
+				},
+				Set: bitbucketPublisherOptionsHash,
+			},
 		},
 	}
 }
@@ -95,17 +123,30 @@ func resourceFeatureCommitStatusPublisherCreate(d *schema.ResourceData, meta int
 
 	//Only Github publisher for now - Add support for more publishers later
 
-	dt, err := buildGithubCommitStatusPublisher(d)
-	if err != nil {
-		return err
+	if pub, ok := d.GetOk("publisher"); ok {
+		switch pub {
+		case "github":
+			dt, err := buildGithubCommitStatusPublisher(d)
+			if err != nil {
+				return err
+			}
+			out, err := srv.Create(dt)
+			if err != nil {
+				return err
+			}
+			d.SetId(out.ID())
+		case "bitbucket_server":
+			dt, err := buildBitbucketServerCommitStatusPublisher(d)
+			if err != nil {
+				return err
+			}
+			out, err := srv.Create(dt)
+			if err != nil {
+				return err
+			}
+			d.SetId(out.ID())
+		}
 	}
-	out, err := srv.Create(dt)
-
-	if err != nil {
-		return err
-	}
-
-	d.SetId(out.ID())
 
 	return resourceFeatureCommitStatusPublisherRead(d, meta)
 }
@@ -163,6 +204,18 @@ func buildGithubCommitStatusPublisher(d *schema.ResourceData) (api.BuildFeature,
 	}
 
 	return api.NewFeatureCommitStatusPublisherGithub(opt, "")
+}
+
+func buildBitbucketServerCommitStatusPublisher(d *schema.ResourceData) (api.BuildFeature, error) {
+	var opt api.StatusPublisherBitbucketServerOptions
+	// MaxItems ensure at most 1 github element
+	local := d.Get("bitbucket_server").(*schema.Set).List()[0].(map[string]interface{})
+	host := local["host"].(string)
+	username := local["username"].(string)
+	password := local["password"].(string)
+	opt = api.NewCommitStatusPublisherBitbucketServerOptionsPassword(host, username, password)
+
+	return api.NewFeatureCommitStatusPublisherBitbucketServer(opt, "")
 }
 
 func getBuildFeatureCommitPublisher(c *api.BuildFeatureService, id string) (*api.FeatureCommitStatusPublisher, error) {
