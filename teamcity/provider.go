@@ -21,6 +21,7 @@ func Provider() terraform.ResourceProvider {
 			"teamcity_feature_commit_status_publisher": resourceFeatureCommitStatusPublisher(),
 			"teamcity_group":                           resourceGroup(),
 			"teamcity_feature_docker_support":          resourceFeatureDockerSupport(),
+			"teamcity_feature_vcs_labeling":            resourceFeatureVcsLabeling(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"teamcity_project": dataSourceProject(),
