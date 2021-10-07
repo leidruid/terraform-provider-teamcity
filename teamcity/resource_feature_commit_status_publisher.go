@@ -164,13 +164,41 @@ func resourceFeatureCommitStatusPublisherRead(d *schema.ResourceData, meta inter
 	}
 
 	//TODO: Implement other publishers
-	if err := d.Set("publisher", "github"); err != nil {
-		return err
-	}
 
+	_, ok := d.GetOk("bitbucket_server")
+	if ok {
+		if err := d.Set("publisher", "bitbucket_server"); err != nil {
+			return err
+		}
+		optsToSave := resourceReadBitBucketStatusPublisher(dt)
+		return d.Set("bitbucket_server", optsToSave)
+	}
+	_, ok = d.GetOk("github")
+	if ok {
+		if err := d.Set("publisher", "github"); err != nil {
+			return err
+		}
+		optsToSave := resourceReadGithubStatusPublisher(dt)
+		return d.Set("bitbucket_server", optsToSave)
+	}
+	return err
+}
+
+func resourceReadBitBucketStatusPublisher(dt *api.FeatureCommitStatusPublisher) (optsToSave []map[string]interface{}) {
+	opt := dt.Options.(*api.StatusPublisherBitbucketServerOptions)
+
+	m := make(map[string]interface{})
+	m["host"] = opt.Host
+	m["password"] = opt.Password
+	m["username"] = opt.Username
+
+	optsToSave = append(optsToSave, m)
+	return
+}
+
+func resourceReadGithubStatusPublisher(dt *api.FeatureCommitStatusPublisher) (optsToSave []map[string]interface{}) {
 	opt := dt.Options.(*api.StatusPublisherGithubOptions)
 
-	var optsToSave []map[string]interface{}
 	m := make(map[string]interface{})
 	m["auth_type"] = opt.AuthenticationType
 	m["host"] = opt.Host
@@ -180,7 +208,7 @@ func resourceFeatureCommitStatusPublisherRead(d *schema.ResourceData, meta inter
 	}
 
 	optsToSave = append(optsToSave, m)
-	return d.Set("github", optsToSave)
+	return
 }
 
 func resourceFeatureCommitStatusPublisherDelete(d *schema.ResourceData, meta interface{}) error {
@@ -232,6 +260,17 @@ func githubPublisherOptionsHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 	buf.WriteString(fmt.Sprintf("%s-", m["auth_type"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["host"].(string)))
+
+	if v, ok := m["username"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
+}
+func bitbucketPublisherOptionsHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
 	buf.WriteString(fmt.Sprintf("%s-", m["host"].(string)))
 
 	if v, ok := m["username"]; ok {
