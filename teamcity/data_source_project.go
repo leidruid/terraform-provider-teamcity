@@ -65,9 +65,17 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error when retrieving project, either `project_id` or `name` are required to be set")
 	}
 	d.SetId(dt.ID)
-	d.Set("name", dt.Name)
-	d.Set("project_id", dt.ID)
-	d.Set("parent_project_id", dt.ParentProjectID)
-	d.Set("url", dt.WebURL)
+	if err := d.Set("name", dt.Name); err != nil {
+		return err
+	}
+	if err := d.Set("project_id", dt.ID); err != nil {
+		return err
+	}
+	if err := d.Set("parent_project_id", dt.ParentProjectID); err != nil {
+		return err
+	}
+	if err := d.Set("url", dt.WebURL); err != nil {
+		return err
+	}
 	return nil
 }

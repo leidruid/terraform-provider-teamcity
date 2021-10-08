@@ -8,7 +8,11 @@ BUILDER_IMAGE=cvbarros/terraform-provider-teamcity-builder
 default: test
 
 build:
-	GO111MODULE=on go build -o ./bin/terraform-provider-teamcity_${VERSION}
+#	GO111MODULE=on go build -o ./bin/terraform-provider-teamcity_${VERSION}
+	GO111MODULE=on go build -ldflags="-w -s" -o ~/.terraform.d/plugins/github.com/leidruid/teamcity/${VERSION}/linux_amd64/terraform-provider-teamcity_v${VERSION}
+	mkdir -p ~/.terraform.d/plugins/github.com/leidruid/teamcity/${VERSION}/linux_amd64/
+	chmod +x ~/.terraform.d/plugins/github.com/leidruid/teamcity/${VERSION}/linux_amd64/terraform-provider-teamcity_v${VERSION}
+	cd /mnt/c/Users/user/work/terraform/teamcity/ && rm .terraform.lock.hcl && terraform init
 
 install: build
 	cp ./bin/terraform-provider-teamcity_${VERSION} ~/.terraform.d/plugins/

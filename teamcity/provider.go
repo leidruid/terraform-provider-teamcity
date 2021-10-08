@@ -22,6 +22,8 @@ func Provider() terraform.ResourceProvider {
 			"teamcity_group":                           resourceGroup(),
 			"teamcity_feature_docker_support":          resourceFeatureDockerSupport(),
 			"teamcity_feature_vcs_labeling":            resourceFeatureVcsLabeling(),
+			"teamcity_feature_ssh_agent":               resourceFeatureSshAgent(),
+			"teamcity_feature_perfmon":                 resourceFeaturePerformanceMonitor(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"teamcity_project": dataSourceProject(),
