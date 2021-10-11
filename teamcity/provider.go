@@ -24,6 +24,8 @@ func Provider() terraform.ResourceProvider {
 			"teamcity_feature_vcs_labeling":            resourceFeatureVcsLabeling(),
 			"teamcity_feature_ssh_agent":               resourceFeatureSshAgent(),
 			"teamcity_feature_perfmon":                 resourceFeaturePerformanceMonitor(),
+			"teamcity_feature_pull_requests":           resourceFeaturePullRequests(),
+			"teamcity_feature_file_content_replacer":   resourceFeatureFileContentReplacer(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"teamcity_project": dataSourceProject(),
