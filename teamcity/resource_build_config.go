@@ -56,7 +56,10 @@ func resourceBuildConfig() *schema.Resource {
 					}
 					if setComputed {
 						computed := flattenBuildConfigOptionsRaw(nsi)
-						diff.SetNew("settings", []map[string]interface{}{computed})
+						err := diff.SetNew("settings", []map[string]interface{}{computed})
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}
@@ -118,6 +121,16 @@ func resourceBuildConfig() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+						},
+						"execute_step": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"default", "execute_if_success", "execute_if_failed", "execute_always"}, false),
+						},
+						"execute_conditions": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeMap},
+							Optional: true,
 						},
 						"file": {
 							Type:     schema.TypeString,
@@ -752,6 +765,9 @@ func flattenBuildStepPowershell(s *api.StepPowershell) map[string]interface{} {
 	if s.Name != "" {
 		m["name"] = s.Name
 	}
+	if s.ExecuteMode != "" {
+		m["execute_step"] = s.ExecuteMode
+	}
 	m["type"] = "powershell"
 
 	return m
@@ -770,6 +786,9 @@ func flattenBuildStepCmdLine(s *api.StepCommandLine) map[string]interface{} {
 	}
 	if s.Name != "" {
 		m["name"] = s.Name
+	}
+	if s.ExecuteMode != "" {
+		m["execute_step"] = s.ExecuteMode
 	}
 	m["type"] = "cmd_line"
 
@@ -790,6 +809,9 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 	if s.Name != "" {
 		m["name"] = s.Name
 	}
+	if s.ExecuteMode != "" {
+		m["execute_step"] = s.ExecuteMode
+	}
 	m["type"] = "gradle"
 	return m
 }
@@ -809,6 +831,9 @@ func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
 	m["work_dir"] = s.WorkingDir
 	if s.PushRemoveImage != nil {
 		m["push_image_remove"] = *s.PushRemoveImage
+	}
+	if s.ExecuteMode != "" {
+		m["execute_step"] = s.ExecuteMode
 	}
 	m["type"] = "docker"
 	return m
@@ -846,7 +871,7 @@ func expandBuildStep(raw interface{}) (api.Step, error) {
 }
 
 func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
-	var name, tasks, gradleParams, gradleBuildFile string
+	var name, tasks, gradleParams, gradleBuildFile, executeStep string
 	if v, ok := dt["name"]; ok {
 		name = v.(string)
 	}
@@ -859,11 +884,13 @@ func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
 	if v, ok := dt["params"]; ok {
 		gradleParams = v.(string)
 	}
-
+	if v, ok := dt["execute_step"]; ok {
+		executeStep = v.(string)
+	}
 	var s *api.StepGradle
 	var err error
 
-	s, err = api.NewStepGradle(name, tasks, gradleParams, gradleBuildFile)
+	s, err = api.NewStepGradle(name, tasks, gradleParams, gradleBuildFile, executeStep)
 	if err != nil {
 		return nil, err
 	}
@@ -911,13 +938,17 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 	if v, ok := dt["tag"]; ok {
 		s.Tag = v.(string)
 	}
+	if v, ok := dt["execute_step"]; ok {
+		s.ExecuteMode = v.(string)
+	}
 	return s, nil
 
 }
 
 func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) {
-	var file, args, name, code string
-
+	var file, args, name, code, executeStep string
+	var executeConditions []string
+	panic(fmt.Sprintf("%#v", dt))
 	if v, ok := dt["file"]; ok {
 		file = v.(string)
 	}
@@ -930,13 +961,19 @@ func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) 
 	if v, ok := dt["code"]; ok {
 		code = v.(string)
 	}
-
+	if v, ok := dt["execute_step"]; ok {
+		executeStep = v.(string)
+	}
+	if v, ok := dt["execute_conditions"]; ok {
+		//panic(fmt.Sprintf("%#v", v))
+		executeConditions = expandStringMapConditions(v.([]interface{}))
+	}
 	var s *api.StepCommandLine
 	var err error
 	if file != "" {
-		s, err = api.NewStepCommandLineExecutable(name, file, args)
+		s, err = api.NewStepCommandLineExecutable(name, file, args, executeStep, executeConditions)
 	} else {
-		s, err = api.NewStepCommandLineScript(name, code)
+		s, err = api.NewStepCommandLineScript(name, code, executeStep, executeConditions)
 	}
 	if err != nil {
 		return nil, err
@@ -949,7 +986,7 @@ func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) 
 }
 
 func expandStepPowershell(dt map[string]interface{}) (*api.StepPowershell, error) {
-	var file, args, name, code string
+	var file, args, name, code, executeStep string
 
 	if v, ok := dt["file"]; ok {
 		file = v.(string)
@@ -963,13 +1000,16 @@ func expandStepPowershell(dt map[string]interface{}) (*api.StepPowershell, error
 	if v, ok := dt["code"]; ok {
 		code = v.(string)
 	}
+	if v, ok := dt["execute_step"]; ok {
+		executeStep = v.(string)
+	}
 
 	var s *api.StepPowershell
 	var err error
 	if file != "" {
-		s, err = api.NewStepPowershellScriptFile(name, file, args)
+		s, err = api.NewStepPowershellScriptFile(name, file, args, executeStep)
 	} else {
-		s, err = api.NewStepPowershellCode(name, code)
+		s, err = api.NewStepPowershellCode(name, code, executeStep)
 	}
 	if err != nil {
 		return nil, err
@@ -1082,6 +1122,16 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+						},
+						"execute_step": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"default", "execute_if_success", "execute_if_failed", "execute_always"}, false),
+						},
+						"execute_conditions": {
+							Type:     schema.TypeString,
+							Optional: true,
+							//Elem:     &schema.Schema{Type: schema.TypeMap},
 						},
 						"file": {
 							Type:     schema.TypeString,

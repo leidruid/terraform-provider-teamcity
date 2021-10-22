@@ -73,3 +73,24 @@ func sliceContainsString(slice []interface{}, s string) (int, bool) {
 	}
 	return -1, false
 }
+
+func expandStringMapConditions(configured []interface{}) []string {
+	//panic(fmt.Sprintf("%#v", configured[0]))
+	vs := make([]string, 0, len(configured))
+	for _, v := range configured {
+		e := v.(map[string]interface{})
+		for _, v = range e {
+			var ec map[string]interface{}
+			if v, ok := ec["condition"]; ok {
+				vs = append(vs, v.(string))
+			}
+			if v, ok := ec["name"]; ok {
+				vs = append(vs, v.(string))
+			}
+			if v, ok := ec["value"]; ok {
+				vs = append(vs, v.(string))
+			}
+		}
+	}
+	return vs
+}
