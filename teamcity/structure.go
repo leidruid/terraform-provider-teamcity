@@ -1,6 +1,7 @@
 package teamcity
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -45,18 +46,18 @@ func flattenStringSlice(list []string) []interface{} {
 
 func getChangeExpandedStringList(oraw interface{}, nraw interface{}) (remove []string, add []string) {
 	old := oraw.([]interface{})
-	new := nraw.([]interface{})
+	n := nraw.([]interface{})
 
 	remove = make([]string, 0)
 	add = make([]string, 0)
 
-	for _, n := range new {
+	for _, n := range n {
 		if _, contains := sliceContainsString(old, n.(string)); !contains {
 			add = append(add, n.(string))
 		}
 	}
 	for _, o := range old {
-		if _, contains := sliceContainsString(new, o.(string)); !contains {
+		if _, contains := sliceContainsString(n, o.(string)); !contains {
 			remove = append(remove, o.(string))
 		}
 	}
@@ -74,23 +75,36 @@ func sliceContainsString(slice []interface{}, s string) (int, bool) {
 	return -1, false
 }
 
-func expandStringMapConditions(configured []interface{}) []string {
-	//panic(fmt.Sprintf("%#v", configured[0]))
-	vs := make([]string, 0, len(configured))
-	for _, v := range configured {
-		e := v.(map[string]interface{})
-		for _, v = range e {
-			var ec map[string]interface{}
-			if v, ok := ec["condition"]; ok {
-				vs = append(vs, v.(string))
-			}
-			if v, ok := ec["name"]; ok {
-				vs = append(vs, v.(string))
-			}
-			if v, ok := ec["value"]; ok {
-				vs = append(vs, v.(string))
-			}
-		}
+func expandStringMapConditions(configured []interface{}) string {
+	vs := make([][]string, 0, len(configured))
+	vss := make([]string, 0, 3)
+	for _, i := range configured {
+		e := i.(map[string]interface{})
+		vss = append(vss, e["condition"].(string))
+		vss = append(vss, e["name"].(string))
+		vss = append(vss, e["value"].(string))
+		vs = append(vs, vss)
+		vss = make([]string, 0, 3)
 	}
-	return vs
+	res, _ := json.Marshal(vs)
+
+	return string(res)
 }
+
+//func expandStringMapConditions(configured []interface{}) []string {
+//	vs := make([]string, 0, len(configured))
+//	vss := make([]string, 0, 3)
+//	for _, i := range configured {
+//		e := i.(map[string]interface{})
+//		vss = append(vss, e["condition"].(string))
+//		vss = append(vss, e["name"].(string))
+//		vss = append(vss, e["value"].(string))
+//		res, _ := json.Marshal(vss)
+//		vs = append(vs, string(res))
+//		//vs = append(vs, vss)
+//		vss = make([]string, 0, 3)
+//	}
+//
+//	fmt.Printf("[DEBUG] =================== %#v", vs)
+//	return vs
+//}

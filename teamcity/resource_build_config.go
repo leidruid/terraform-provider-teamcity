@@ -129,8 +129,24 @@ func resourceBuildConfig() *schema.Resource {
 						},
 						"execute_conditions": {
 							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeMap},
 							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"condition": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
 						},
 						"file": {
 							Type:     schema.TypeString,
@@ -790,8 +806,13 @@ func flattenBuildStepCmdLine(s *api.StepCommandLine) map[string]interface{} {
 	if s.ExecuteMode != "" {
 		m["execute_step"] = s.ExecuteMode
 	}
+	//if len(s.ExecuteCondition) > 0 {
+	//	m["execute_conditions"] = s.ExecuteCondition
+	//}
+	//if s.ExecuteCondition != "" {
+	//	m["execute_conditions"] = s.ExecuteCondition
+	//}
 	m["type"] = "cmd_line"
-
 	return m
 }
 
@@ -946,9 +967,8 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 }
 
 func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) {
-	var file, args, name, code, executeStep string
-	var executeConditions []string
-	panic(fmt.Sprintf("%#v", dt))
+	var file, args, name, code, executeStep, executeConditions string
+	//var executeConditions []string
 	if v, ok := dt["file"]; ok {
 		file = v.(string)
 	}
@@ -965,7 +985,6 @@ func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) 
 		executeStep = v.(string)
 	}
 	if v, ok := dt["execute_conditions"]; ok {
-		//panic(fmt.Sprintf("%#v", v))
 		executeConditions = expandStringMapConditions(v.([]interface{}))
 	}
 	var s *api.StepCommandLine
@@ -1129,9 +1148,25 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"default", "execute_if_success", "execute_if_failed", "execute_always"}, false),
 						},
 						"execute_conditions": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeList,
 							Optional: true,
-							//Elem:     &schema.Schema{Type: schema.TypeMap},
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"condition": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
 						},
 						"file": {
 							Type:     schema.TypeString,
