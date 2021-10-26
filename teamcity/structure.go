@@ -1,8 +1,8 @@
 package teamcity
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -75,36 +75,39 @@ func sliceContainsString(slice []interface{}, s string) (int, bool) {
 	return -1, false
 }
 
-func expandStringMapConditions(configured []interface{}) string {
-	vs := make([][]string, 0, len(configured))
-	vss := make([]string, 0, 3)
-	for _, i := range configured {
-		e := i.(map[string]interface{})
-		vss = append(vss, e["condition"].(string))
-		vss = append(vss, e["name"].(string))
-		vss = append(vss, e["value"].(string))
-		vs = append(vs, vss)
-		vss = make([]string, 0, 3)
-	}
-	res, _ := json.Marshal(vs)
-
-	return string(res)
-}
-
-//func expandStringMapConditions(configured []interface{}) []string {
-//	vs := make([]string, 0, len(configured))
+//func expandStringMapConditions(configured []interface{}) string {
+//	vs := make([][]string, 0, len(configured))
 //	vss := make([]string, 0, 3)
 //	for _, i := range configured {
 //		e := i.(map[string]interface{})
 //		vss = append(vss, e["condition"].(string))
 //		vss = append(vss, e["name"].(string))
 //		vss = append(vss, e["value"].(string))
-//		res, _ := json.Marshal(vss)
-//		vs = append(vs, string(res))
-//		//vs = append(vs, vss)
-//		vss = make([]string, 0, 3)
+//		vs = append(vs, vss)
+//		vss = vss[:0]
 //	}
+//	res, _ := json.Marshal(vs)
+//	log.Printf("[DEBUG] =/=/=/=/=/=/=/=/=/=/=/=/=//=/=/=/ %#v", string(res))
 //
-//	fmt.Printf("[DEBUG] =================== %#v", vs)
-//	return vs
+//	return string(res)
 //}
+
+func expandStringMapConditions(configured []interface{}) [][]string {
+	//res := make([]string, 0, len(configured))
+	vs := make([][]string, 0, len(configured))
+
+	for _, i := range configured {
+		vss := make([]string, 0, 3)
+		e := i.(map[string]interface{})
+		vss = append(vss, e["condition"].(string))
+		vss = append(vss, e["name"].(string))
+		vss = append(vss, e["value"].(string))
+		vs = append(vs, vss)
+		log.Printf("[DEBUG] ################################### %#v", vss)
+	}
+
+	//v, _ := json.Marshal(vs)
+	//res = append(res, string(v))
+	//log.Printf("[DEBUG] =/=/=/=/=/=/=/=/=/=/=/=/=//=/=/=/ %#v", string(v))
+	return vs
+}

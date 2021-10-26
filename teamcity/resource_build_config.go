@@ -806,11 +806,28 @@ func flattenBuildStepCmdLine(s *api.StepCommandLine) map[string]interface{} {
 	if s.ExecuteMode != "" {
 		m["execute_step"] = s.ExecuteMode
 	}
-	//if len(s.ExecuteCondition) > 0 {
-	//	m["execute_conditions"] = s.ExecuteCondition
-	//}
+	log.Printf("[DEBUG] @@@@@@@@@@@@@@@@@@@@@@@@##### %#v", s.ExecuteCondition)
+	if len(s.ExecuteCondition) > 0 {
+		ecs := make([]map[string]string, 0)
+		for _, v := range s.ExecuteCondition {
+			valmap := make(map[string]string)
+			valmap["condition"] = v[0]
+			valmap["name"] = v[1]
+			valmap["value"] = v[2]
+			ecs = append(ecs, valmap)
+		}
+		log.Printf("[DEBUG] @@@@@@@@@@@@@@@@@@@@@@@@#####$$$$$$$$$$$$$ %#v", ecs)
+		//log.Printf("[DEBUG] @@@@@@@@@@@@@@@@@@@@@@@@ %#v\n", s.ExecuteCondition)
+		m["execute_conditions"] = ecs
+
+	}
 	//if s.ExecuteCondition != "" {
-	//	m["execute_conditions"] = s.ExecuteCondition
+	//	var ecJson [][]string
+	//	err := json.Unmarshal([]byte(s.ExecuteCondition), &ecJson)
+	//	if err != nil {
+	//		log.Println(err.Error())
+	//	}
+	//	m["execute_conditions"] = ecJson
 	//}
 	m["type"] = "cmd_line"
 	return m
@@ -967,8 +984,7 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 }
 
 func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) {
-	var file, args, name, code, executeStep, executeConditions string
-	//var executeConditions []string
+	var file, args, name, code string
 	if v, ok := dt["file"]; ok {
 		file = v.(string)
 	}
