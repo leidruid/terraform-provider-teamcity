@@ -34,7 +34,7 @@ func expandStringSlice(configured []interface{}) []string {
 
 // Takes list of pointers to strings. Expand to an array
 // of raw strings and returns a []interface{}
-// to keep compatibility w/ schema.NewSetschema.NewSet
+// to keep compatibility w/ schema.NewSet schema.NewSet
 func flattenStringSlice(list []string) []interface{} {
 	vs := make([]interface{}, 0, len(list))
 	for _, v := range list {

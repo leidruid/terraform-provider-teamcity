@@ -996,21 +996,23 @@ func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) 
 	if v, ok := dt["code"]; ok {
 		code = v.(string)
 	}
-	if v, ok := dt["execute_step"]; ok {
-		executeStep = v.(string)
-	}
-	if v, ok := dt["execute_conditions"]; ok {
-		executeConditions = expandStringMapConditions(v.([]interface{}))
-	}
 	var s *api.StepCommandLine
 	var err error
 	if file != "" {
-		s, err = api.NewStepCommandLineExecutable(name, file, args, executeStep, executeConditions)
+		s, err = api.NewStepCommandLineExecutable(name, file, args)
 	} else {
-		s, err = api.NewStepCommandLineScript(name, code, executeStep, executeConditions)
+		s, err = api.NewStepCommandLineScript(name, code)
 	}
 	if err != nil {
 		return nil, err
+	}
+
+	if v, ok := dt["execute_step"]; ok {
+		s.ExecuteMode = v.(string)
+	}
+
+	if v, ok := dt["execute_conditions"]; ok {
+		s.ExecuteCondition = expandStringMapConditions(v.([]interface{}))
 	}
 
 	if v, ok := dt["step_id"]; ok {
