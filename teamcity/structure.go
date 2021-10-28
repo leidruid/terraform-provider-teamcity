@@ -2,7 +2,6 @@ package teamcity
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -75,25 +74,7 @@ func sliceContainsString(slice []interface{}, s string) (int, bool) {
 	return -1, false
 }
 
-//func expandStringMapConditions(configured []interface{}) string {
-//	vs := make([][]string, 0, len(configured))
-//	vss := make([]string, 0, 3)
-//	for _, i := range configured {
-//		e := i.(map[string]interface{})
-//		vss = append(vss, e["condition"].(string))
-//		vss = append(vss, e["name"].(string))
-//		vss = append(vss, e["value"].(string))
-//		vs = append(vs, vss)
-//		vss = vss[:0]
-//	}
-//	res, _ := json.Marshal(vs)
-//	log.Printf("[DEBUG] =/=/=/=/=/=/=/=/=/=/=/=/=//=/=/=/ %#v", string(res))
-//
-//	return string(res)
-//}
-
 func expandStringMapConditions(configured []interface{}) [][]string {
-	//res := make([]string, 0, len(configured))
 	vs := make([][]string, 0, len(configured))
 
 	for _, i := range configured {
@@ -103,11 +84,18 @@ func expandStringMapConditions(configured []interface{}) [][]string {
 		vss = append(vss, e["name"].(string))
 		vss = append(vss, e["value"].(string))
 		vs = append(vs, vss)
-		log.Printf("[DEBUG] ################################### %#v", vss)
 	}
-
-	//v, _ := json.Marshal(vs)
-	//res = append(res, string(v))
-	//log.Printf("[DEBUG] =/=/=/=/=/=/=/=/=/=/=/=/=//=/=/=/ %#v", string(v))
 	return vs
+}
+
+func flattenExecuteConditions(conditions [][]string) []map[string]string {
+	ecs := make([]map[string]string, 0)
+	for _, v := range conditions {
+		mp := make(map[string]string)
+		mp["condition"] = v[0]
+		mp["name"] = v[1]
+		mp["value"] = v[2]
+		ecs = append(ecs, mp)
+	}
+	return ecs
 }

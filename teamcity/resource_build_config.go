@@ -784,6 +784,10 @@ func flattenBuildStepPowershell(s *api.StepPowershell) map[string]interface{} {
 	if s.ExecuteMode != "" {
 		m["execute_step"] = s.ExecuteMode
 	}
+	if len(s.ExecuteCondition) > 0 {
+		ecs := flattenExecuteConditions(s.ExecuteCondition)
+		m["execute_conditions"] = ecs
+	}
 	m["type"] = "powershell"
 
 	return m
@@ -806,29 +810,10 @@ func flattenBuildStepCmdLine(s *api.StepCommandLine) map[string]interface{} {
 	if s.ExecuteMode != "" {
 		m["execute_step"] = s.ExecuteMode
 	}
-	log.Printf("[DEBUG] @@@@@@@@@@@@@@@@@@@@@@@@##### %#v", s.ExecuteCondition)
 	if len(s.ExecuteCondition) > 0 {
-		ecs := make([]map[string]string, 0)
-		for _, v := range s.ExecuteCondition {
-			valmap := make(map[string]string)
-			valmap["condition"] = v[0]
-			valmap["name"] = v[1]
-			valmap["value"] = v[2]
-			ecs = append(ecs, valmap)
-		}
-		log.Printf("[DEBUG] @@@@@@@@@@@@@@@@@@@@@@@@#####$$$$$$$$$$$$$ %#v", ecs)
-		//log.Printf("[DEBUG] @@@@@@@@@@@@@@@@@@@@@@@@ %#v\n", s.ExecuteCondition)
+		ecs := flattenExecuteConditions(s.ExecuteCondition)
 		m["execute_conditions"] = ecs
-
 	}
-	//if s.ExecuteCondition != "" {
-	//	var ecJson [][]string
-	//	err := json.Unmarshal([]byte(s.ExecuteCondition), &ecJson)
-	//	if err != nil {
-	//		log.Println(err.Error())
-	//	}
-	//	m["execute_conditions"] = ecJson
-	//}
 	m["type"] = "cmd_line"
 	return m
 }
@@ -849,6 +834,10 @@ func flattenBuildStepGradle(s *api.StepGradle) map[string]interface{} {
 	}
 	if s.ExecuteMode != "" {
 		m["execute_step"] = s.ExecuteMode
+	}
+	if len(s.ExecuteCondition) > 0 {
+		ecs := flattenExecuteConditions(s.ExecuteCondition)
+		m["execute_conditions"] = ecs
 	}
 	m["type"] = "gradle"
 	return m
@@ -872,6 +861,10 @@ func flattenBuildStepDocker(s *api.StepDocker) map[string]interface{} {
 	}
 	if s.ExecuteMode != "" {
 		m["execute_step"] = s.ExecuteMode
+	}
+	if len(s.ExecuteCondition) > 0 {
+		ecs := flattenExecuteConditions(s.ExecuteCondition)
+		m["execute_conditions"] = ecs
 	}
 	m["type"] = "docker"
 	return m
@@ -909,7 +902,7 @@ func expandBuildStep(raw interface{}) (api.Step, error) {
 }
 
 func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
-	var name, tasks, gradleParams, gradleBuildFile, executeStep string
+	var name, tasks, gradleParams, gradleBuildFile string
 	if v, ok := dt["name"]; ok {
 		name = v.(string)
 	}
@@ -922,15 +915,18 @@ func expandStepGradle(dt map[string]interface{}) (*api.StepGradle, error) {
 	if v, ok := dt["params"]; ok {
 		gradleParams = v.(string)
 	}
-	if v, ok := dt["execute_step"]; ok {
-		executeStep = v.(string)
-	}
 	var s *api.StepGradle
 	var err error
 
-	s, err = api.NewStepGradle(name, tasks, gradleParams, gradleBuildFile, executeStep)
+	s, err = api.NewStepGradle(name, tasks, gradleParams, gradleBuildFile)
 	if err != nil {
 		return nil, err
+	}
+	if v, ok := dt["execute_step"]; ok {
+		s.ExecuteMode = v.(string)
+	}
+	if v, ok := dt["execute_conditions"]; ok {
+		s.ExecuteCondition = expandStringMapConditions(v.([]interface{}))
 	}
 	if v, ok := dt["step_id"]; ok {
 		s.ID = v.(string)
@@ -979,6 +975,9 @@ func expandStepDocker(dt map[string]interface{}) (*api.StepDocker, error) {
 	if v, ok := dt["execute_step"]; ok {
 		s.ExecuteMode = v.(string)
 	}
+	if v, ok := dt["execute_conditions"]; ok {
+		s.ExecuteCondition = expandStringMapConditions(v.([]interface{}))
+	}
 	return s, nil
 
 }
@@ -1021,7 +1020,7 @@ func expandStepCmdLine(dt map[string]interface{}) (*api.StepCommandLine, error) 
 }
 
 func expandStepPowershell(dt map[string]interface{}) (*api.StepPowershell, error) {
-	var file, args, name, code, executeStep string
+	var file, args, name, code string
 
 	if v, ok := dt["file"]; ok {
 		file = v.(string)
@@ -1035,21 +1034,24 @@ func expandStepPowershell(dt map[string]interface{}) (*api.StepPowershell, error
 	if v, ok := dt["code"]; ok {
 		code = v.(string)
 	}
-	if v, ok := dt["execute_step"]; ok {
-		executeStep = v.(string)
-	}
 
 	var s *api.StepPowershell
 	var err error
 	if file != "" {
-		s, err = api.NewStepPowershellScriptFile(name, file, args, executeStep)
+		s, err = api.NewStepPowershellScriptFile(name, file, args)
 	} else {
-		s, err = api.NewStepPowershellCode(name, code, executeStep)
+		s, err = api.NewStepPowershellCode(name, code)
 	}
 	if err != nil {
 		return nil, err
 	}
 
+	if v, ok := dt["execute_step"]; ok {
+		s.ExecuteMode = v.(string)
+	}
+	if v, ok := dt["execute_conditions"]; ok {
+		s.ExecuteCondition = expandStringMapConditions(v.([]interface{}))
+	}
 	if v, ok := dt["step_id"]; ok {
 		s.ID = v.(string)
 	}
