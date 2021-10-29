@@ -21,11 +21,11 @@ Whenever a major version is bumped, backwards compatibility with previous TeamCi
 - Migrate to `terraform-plugin-sdk` instead of Terraform Core [#72]
 
 [//]: # (Release links)
-[1.0.0]: https://github.com/cvbarros/terraform-provider-teamcity/releases/tag/v1.0.0
+[1.0.0]: https://github.com/leidruid/terraform-provider-teamcity/releases/tag/v1.0.0
 
 [//]: # (Issue/PR links)
-[#43]: https://github.com/cvbarros/terraform-provider-teamcity/issues/43
-[#69]: https://github.com/cvbarros/terraform-provider-teamcity/pull/69
-[#70]: https://github.com/cvbarros/terraform-provider-teamcity/pull/70
-[#71]: https://github.com/cvbarros/terraform-provider-teamcity/pull/71
-[#72]: https://github.com/cvbarros/terraform-provider-teamcity/pull/72
+[#43]: https://github.com/leidruid/terraform-provider-teamcity/issues/43
+[#69]: https://github.com/leidruid/terraform-provider-teamcity/pull/69
+[#70]: https://github.com/leidruid/terraform-provider-teamcity/pull/70
+[#71]: https://github.com/leidruid/terraform-provider-teamcity/pull/71
+[#72]: https://github.com/leidruid/terraform-provider-teamcity/pull/72

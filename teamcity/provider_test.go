@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cvbarros/terraform-provider-teamcity/teamcity"
+	"github.com/leidruid/terraform-provider-teamcity/teamcity"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"

@@ -1,17 +1,17 @@
 Terraform Provider TeamCity
 ==================
-[![Build Status](https://travis-ci.com/cvbarros/terraform-provider-teamcity.svg?branch=master)](https://travis-ci.com/cvbarros/terraform-provider-teamcity)
+[![Build Status](https://travis-ci.com/leidruid/terraform-provider-teamcity.svg?branch=master)](https://travis-ci.com/leidruid/terraform-provider-teamcity)
 
 Motivation:
 
-[Building Builds: TeamCity Pipelines as Code using Terraform](https://cvbarros.io/2018/11/building-builds---teamcity-pipelines-as-code-using-terraform/)
+[Building Builds: TeamCity Pipelines as Code using Terraform](https://leidruid.io/2018/11/building-builds---teamcity-pipelines-as-code-using-terraform/)
 
 Installation
 ------------
 
 ## Binaries (Recommended)
 The easiest way to install this provider is to use one of the binary distributions available as 
-[Releases](https://github.com/cvbarros/terraform-provider-teamcity/releases). 
+[Releases](https://github.com/leidruid/terraform-provider-teamcity/releases). 
 It contains pre-compiled bundles for Linux, MacOS and Windows.
 
 Download and unpack the version for your OS/arch.  
@@ -19,7 +19,7 @@ In the example below, we use MacOS (darwin_amd64) and version `v0.5.1`:
 
 ```bash
 VERSION=v0.5.1
-wget https://github.com/cvbarros/terraform-provider-teamcity/releases/download/$VERSION/terraform-provider-teamcity_darwin_amd64_$VERSION.zip
+wget https://github.com/leidruid/terraform-provider-teamcity/releases/download/$VERSION/terraform-provider-teamcity_darwin_amd64_$VERSION.zip
 tar -xvf terraform-provider-teamcity_darwin_amd64_$VERSION.zip 
 ```
 

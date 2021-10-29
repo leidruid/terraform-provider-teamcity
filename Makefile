@@ -3,7 +3,7 @@ export GO111MODULE=on
 GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE=$(shell date '+%Y-%m-%d-%H:%M:%S')
-BUILDER_IMAGE=cvbarros/terraform-provider-teamcity-builder
+BUILDER_IMAGE=leidruid/terraform-provider-teamcity-builder
 
 default: test
 
