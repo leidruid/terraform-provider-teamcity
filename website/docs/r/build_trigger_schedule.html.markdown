@@ -20,7 +20,7 @@ resource "teamcity_project" "project" {
 resource "teamcity_vcs_root_git" "project_vcs" {
   name       = "Application"
   project_id = teamcity_project.project.id
-  url        = "https://github.com/cvbarros/go-teamcity"
+  url        = "https://github.com/leidruid/go-teamcity"
   branch     = "refs/head/master"
 }
 
