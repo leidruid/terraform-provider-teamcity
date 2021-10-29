@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	api "github.com/leidruid/go-teamcity/teamcity"
 )
 
 func TestAccTeamcityProject_Basic(t *testing.T) {

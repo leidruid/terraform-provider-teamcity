@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
+	api "github.com/leidruid/go-teamcity/teamcity"
 )
 
 func TestAccBuildConfig_Basic(t *testing.T) {

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	api "github.com/leidruid/go-teamcity/teamcity"
 )
 
 //Remove this test due to https://github.com/hashicorp/terraform/issues/23635
@@ -94,7 +94,7 @@ func TestAccVcsRootGit_UpdateBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVcsRootGitExists(resName, &vcs),
 					resource.TestCheckResourceAttr(resName, "name", "application_updated"),
-					resource.TestCheckResourceAttr(resName, "fetch_url", "https://github.com/cvbarros/go-teamcity"),
+					resource.TestCheckResourceAttr(resName, "fetch_url", "https://github.com/leidruid/go-teamcity"),
 					resource.TestCheckResourceAttr(resName, "default_branch", "refs/head/develop"),
 					resource.TestCheckResourceAttr(resName, "branches.#", "2"),
 					resource.TestCheckResourceAttr(resName, "branches.0", "+:refs/heads/master"),
@@ -325,7 +325,7 @@ resource "teamcity_project" "vcs_root_project_new" {
 resource "teamcity_vcs_root_git" "git_test" {
 	name = "application_updated"
 	project_id = "${teamcity_project.vcs_root_project_new.id}"
-	fetch_url = "https://github.com/cvbarros/go-teamcity"
+	fetch_url = "https://github.com/leidruid/go-teamcity"
 	default_branch = "refs/head/develop"
 	branches = [
     	"+:refs/heads/master",

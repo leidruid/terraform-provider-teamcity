@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
+	api "github.com/leidruid/go-teamcity/teamcity"
 	"hash/crc32"
 	"regexp"
 )

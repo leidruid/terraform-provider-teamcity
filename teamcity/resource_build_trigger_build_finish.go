@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	api "github.com/leidruid/go-teamcity/teamcity"
 )
 
 func resourceBuildTriggerBuildFinish() *schema.Resource {

@@ -3,8 +3,8 @@ package teamcity_test
 import (
 	"testing"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	api "github.com/leidruid/go-teamcity/teamcity"
 )
 
 func TestAccTeamcityBuildTriggerBuildFinish_Basic(t *testing.T) {
